@@ -7,15 +7,23 @@
 #ifndef CNL_BITS_NUM_TRAITS_IS_COMPOSITE
 #define CNL_BITS_NUM_TRAITS_IS_COMPOSITE
 
+#include "to_rep.h"
+
 #include <type_traits>
 
 namespace cnl {
-    template<class T, class Enable = void>
-    struct is_composite : std::false_type {
-        static_assert(!std::is_reference<T>::value, "T is a reference");
-        static_assert(!std::is_const<T>::value, "T is const");
-        static_assert(!std::is_volatile<T>::value, "T is volatile");
+    template<class T>
+    struct is_composite : std::integral_constant<bool, !std::is_same<
+        T,
+        _impl::to_rep_t<T>
+    >::value> {
     };
+    // template<class T, class Enable = void>
+    // struct is_composite : std::false_type {
+    //     static_assert(!std::is_reference<T>::value, "T is a reference");
+    //     static_assert(!std::is_const<T>::value, "T is const");
+    //     static_assert(!std::is_volatile<T>::value, "T is volatile");
+    // };
 
 #if (__cplusplus > 201402L)
     template<class T>

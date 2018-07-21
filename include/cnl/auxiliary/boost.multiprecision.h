@@ -11,7 +11,15 @@
 #define CNL_BOOST_MULTIPRECISION_H 1
 
 #include <cnl/constant.h>
-#include <cnl/num_traits.h>
+#include <cnl/bits/num_traits/digits.h>
+#include <cnl/bits/num_traits/from_value.h>
+#include <cnl/bits/num_traits/is_composite.h>
+#include <cnl/bits/num_traits/set_digits.h>
+#include <cnl/bits/num_traits/shift.h>
+#include <cnl/bits/num_traits/to_rep.h>
+#include <cnl/bits/type_traits/is_signed.h>
+#include <cnl/bits/type_traits/make_signed.h>
+#include <cnl/bits/type_traits/make_unsigned.h>
 
 #include <boost/multiprecision/cpp_int.hpp>
 
@@ -26,6 +34,7 @@ namespace cnl {
     // These are the definitions needed to use any custom integer type with
     // cnl::fixed_point
 
+    // boost::multiprecision::cpp_int_backend specializations
     template<unsigned NumBits, _bmp::cpp_integer_type SignType, _bmp::cpp_int_check_type Checked, class Allocator>
     struct make_signed<_bmp::cpp_int_backend<NumBits, NumBits, SignType, Checked, Allocator>> {
         using type = _bmp::cpp_int_backend<NumBits, NumBits, _bmp::signed_magnitude, Checked, Allocator>;
@@ -66,6 +75,17 @@ namespace cnl {
         }
     };
 
+    template<unsigned NumBits, _bmp::cpp_int_check_type Checked>
+    struct is_signed<_bmp::cpp_int_backend<NumBits, NumBits, _bmp::signed_magnitude, Checked, void>>
+            : std::true_type {
+    };
+
+    template<unsigned NumBits, _bmp::cpp_int_check_type Checked>
+    struct is_signed<_bmp::cpp_int_backend<NumBits, NumBits, _bmp::unsigned_magnitude, Checked, void>>
+            : std::false_type {
+    };
+
+    // boost::multiprecision::number specializations
     template<class Backend, _bmp::expression_template_option ExpressionTemplates>
     struct make_signed<_bmp::number<Backend, ExpressionTemplates>> {
         using type = _bmp::number<make_signed_t<Backend>, ExpressionTemplates>;
@@ -85,6 +105,11 @@ namespace cnl {
     struct set_digits<_bmp::number<Backend, ExpressionTemplates>, MinNumDigits> {
         using type = _bmp::number<set_digits_t<Backend, MinNumDigits>, ExpressionTemplates>;
     };
+
+    template<class Backend, _bmp::expression_template_option ExpressionTemplates>
+    constexpr Backend to_rep(_bmp::number<Backend, ExpressionTemplates> const& number) {
+        return number.backend();
+    }
 
     template<class Backend, _bmp::expression_template_option ExpressionTemplates, class Value>
     struct from_value<_bmp::number<Backend, ExpressionTemplates>, Value> {

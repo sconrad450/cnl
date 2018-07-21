@@ -9,10 +9,10 @@
 
 #include <cnl/bits/num_traits/from_rep.h>
 #include <cnl/bits/num_traits/from_value.h>
-#include <cnl/bits/num_traits/is_composite.h>
 #include <cnl/bits/num_traits/shift.h>
 #include <cnl/bits/num_traits/to_rep.h>
 #include <cnl/bits/operators.h>
+#include <cnl/bits/type_traits/is_signed.h>
 #include <cnl/bits/type_traits/make_signed.h>
 #include <cnl/bits/type_traits/make_unsigned.h>
 #include <cnl/constant.h>
@@ -213,10 +213,6 @@ namespace cnl {
 
     ////////////////////////////////////////////////////////////////////////////////
     // _impl::number_base<> numeric traits
-
-    template<class Number>
-    struct is_composite<Number, _impl::enable_if_t<_impl::is_derived_from_number_base<Number>::value>> : std::true_type {
-    };
 
     namespace _impl {
         template<class Number>
