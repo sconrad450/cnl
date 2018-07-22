@@ -19,12 +19,6 @@ namespace cnl {
         return number;
     }
 
-    namespace _impl {
-        using cnl::to_rep;
-
-        template<class Number>
-        using to_rep_t = decltype(to_rep(std::declval<Number>()));
-    }
 }
 
 #endif  // CNL_BITS_NUM_TRAITS_TO_REP

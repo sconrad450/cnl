@@ -10,8 +10,7 @@
 #include <cnl/bits/config.h>
 #include <cnl/bits/num_traits/is_composite.h>
 #include <cnl/bits/num_traits/to_rep.h>
-
-#include <type_traits>
+#include <cnl/bits/type_traits.h>
 
 namespace cnl {
     template<typename T, class Enable = void>
@@ -28,10 +27,10 @@ namespace cnl {
     };
 #endif
 
-    template<class Number>
-    struct is_signed<Number, _impl::enable_if_t<is_composite<Number>::value>> 
-            : is_signed<_impl::to_rep_t<Number>> {
-    };
+    // template<class Number>
+    // struct is_signed<Number, _impl::enable_if_t<is_composite<Number>::value>> 
+    //         : is_signed<_impl::to_rep_t<Number>> {
+    // };
 }
 
 #endif  // CNL_BITS_TYPE_TRAITS_IS_SIGNED

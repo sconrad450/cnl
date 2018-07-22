@@ -106,10 +106,22 @@ namespace cnl {
         using type = _bmp::number<set_digits_t<Backend, MinNumDigits>, ExpressionTemplates>;
     };
 
-    template<class Backend, _bmp::expression_template_option ExpressionTemplates>
-    constexpr Backend to_rep(_bmp::number<Backend, ExpressionTemplates> const& number) {
-        return number.backend();
+    namespace _impl {
+        using cnl::to_rep;
+
+        template<class Number>
+        struct to_rep_type : type_identity<decltype(to_rep(std::declval<Number>()))> {
+        };
+
+        template<class Number>
+        using to_rep_t = typename to_rep_type<Number>::type;
     }
+
+    template<class Backend, _bmp::expression_template_option ExpressionTemplates>
+    constexpr Backend to_rep(_bmp::number<Backend, ExpressionTemplates> const& /*number*/) {
+        return {};//number.backend();
+    }
+
 
     template<class Backend, _bmp::expression_template_option ExpressionTemplates, class Value>
     struct from_value<_bmp::number<Backend, ExpressionTemplates>, Value> {

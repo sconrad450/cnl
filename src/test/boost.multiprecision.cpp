@@ -27,30 +27,55 @@ using cnl::unsigned_multiprecision;
 
 static_assert(
     std::is_same<
-        boost::multiprecision::number<cnl::_sized_integer_impl::backend<16, cnl::_bmp::signed_magnitude>, cnl::_bmp::et_off>,
-        cnl::_impl::to_rep_t<boost::multiprecision::number<cnl::_sized_integer_impl::backend<16, cnl::_bmp::signed_magnitude>, cnl::_bmp::et_off>>
+        cnl::_sized_integer_impl::backend<16, cnl::_bmp::signed_magnitude>,
+        decltype(
+            cnl::to_rep(
+                std::declval<
+                    boost::multiprecision::number<
+                        cnl::_sized_integer_impl::backend<16, cnl::_bmp::signed_magnitude>, 
+                        cnl::_bmp::et_off
+                    >
+                >()
+            )
+        )
     >::value, "");
 static_assert(
     std::is_same<
-        boost::multiprecision::number<cnl::_sized_integer_impl::backend<2, cnl::_bmp::signed_magnitude>, cnl::_bmp::et_off>,
-        cnl::_impl::to_rep_t<signed_multiprecision<1>>
+        cnl::_sized_integer_impl::backend<16, cnl::_bmp::signed_magnitude>,
+        cnl::_impl::to_rep_t<
+            boost::multiprecision::number<
+                cnl::_sized_integer_impl::backend<16, cnl::_bmp::signed_magnitude>, 
+                cnl::_bmp::et_off
+            >
+        >::_
     >::value, "");
+// static_assert(
+//     std::is_same<
+//         boost::multiprecision::number<cnl::_sized_integer_impl::backend<16, cnl::_bmp::signed_magnitude>, cnl::_bmp::et_off>,
+//         cnl::_impl::to_rep_t<boost::multiprecision::number<cnl::_sized_integer_impl::backend<16, cnl::_bmp::signed_magnitude>, cnl::_bmp::et_off>>
+//     >::value, "");
+// static_assert(
+//     std::is_same<
+//         boost::multiprecision::number<cnl::_sized_integer_impl::backend<2, cnl::_bmp::signed_magnitude>, cnl::_bmp::et_off>,
+//         cnl::_impl::to_rep_t<signed_multiprecision<1>>
+//     >::value, "");
 
 // test cnl::is_composite<{un}signed_multiprecision>::value
 // static_assert(cnl::is_composite<boost::multiprecision::number<cnl::_sized_integer_impl::backend<2, cnl::_bmp::signed_magnitude>, cnl::_bmp::et_off>>::value,
 // "");
-static_assert(
-    cnl::is_composite<
-        typename cnl::_impl::to_rep_t<
-            boost::multiprecision::number<
-                cnl::_sized_integer_impl::backend<
-                    16, cnl::_bmp::signed_magnitude
-                >, 
-                cnl::_bmp::et_off
-            >
-        >::_
-    >::value,
-    "");
+
+// static_assert(
+//     cnl::is_composite<
+//         typename cnl::_impl::to_rep_t<
+//             boost::multiprecision::number<
+//                 cnl::_sized_integer_impl::backend<
+//                     16, cnl::_bmp::signed_magnitude
+//                 >, 
+//                 cnl::_bmp::et_off
+//             >
+//         >::_
+//     >::value,
+//     "");
 
 // test cnl::is_signed<{un}signed_multiprecision>::value
 // static_assert(cnl::is_signed<boost::multiprecision::number<cnl::_sized_integer_impl::backend<2, cnl::_bmp::signed_magnitude>, cnl::_bmp::et_off>>::value,
