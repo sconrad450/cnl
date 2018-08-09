@@ -19,10 +19,11 @@ auto divide(
     return cnl::quotient(n, d);
 }
 
+// from: https://medium.com/@bellmar/is-cobol-holding-you-hostage-with-math-5498c0eb428b
 template<typename Scalar>
 auto iterate(Scalar const& y, Scalar const& z)
 {
-    return Scalar{108.} - divide((Scalar{815.} - Scalar{divide(Scalar{1500.}, z)}), y);
+    return Scalar{108.} - Scalar{divide(Scalar{815.} - Scalar{divide(Scalar{1500.}, z)}, y)};
 }
 
 template<typename Scalar>
@@ -64,6 +65,8 @@ int main()
     test<float>("single precision floaint point");
     test<double>("double precision floaint point");
     test<long double>("extended precision floaint point");
-    test<cnl::fixed_point<cnl::elastic_integer<49>, -38>>("Q3.38");
+    test<cnl::fixed_point<cnl::int64, -52>>("Q25.38");
+    test<cnl::fixed_point<cnl::elastic_integer<49>, -38>>("Q11.38");
     test<cnl::static_number<42, -30>>("cnl::static_number<42, -30>");
+//    test<cnl::fractional<cnl::static_number<42, -30>>("cnl::static_number<42, -30>");
 }
