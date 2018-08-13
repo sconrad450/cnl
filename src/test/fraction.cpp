@@ -8,11 +8,52 @@
 /// \brief file containing tests of the `cnl/bits/common.h` definitions
 
 #include <cnl/fraction.h>
+
+#include <cnl/cnlint.h>
 #include <cnl/_impl/type_traits.h>
 
 using cnl::_impl::identical;
 
 namespace {
+#if defined(__cpp_deduction_guides)
+    namespace test_deduction {
+        static_assert(identical(
+                cnl::fraction<short>(123),
+                cnl::fraction(short{123})), "cnl::fraction argument deduction");
+    }
+#endif
+
+    namespace test_copy_ctor {
+        static_assert(
+                identical(
+                        cnl::fraction<short>(123),
+                        cnl::fraction<short>(cnl::fraction<short>(123))),
+                "cnl::fraction argument deduction");
+    }
+
+    static_assert(cnl::_impl::is_narrowing<cnl::int64, cnl::int8>::value, "cnl::is_narrowing sanity check failed");
+    static_assert(!cnl::_impl::is_narrowing<cnl::int8, cnl::int64>::value, "cnl::is_narrowing sanity check failed");
+
+    namespace test_fraction_conversion_ctor {
+        static_assert(
+                identical(
+                        cnl::fraction<cnl::int64>(123),
+                        cnl::fraction<cnl::int64>(cnl::fraction<cnl::int8>(123))),
+                "cnl::fraction widening conversion from fraction");
+        static_assert(
+                identical(
+                        cnl::fraction<cnl::int64>(123),
+                        cnl::fraction<cnl::int64>(cnl::fraction<cnl::int8>(123))),
+                "cnl::fraction narrowing conversion from fraction");
+    }
+
+//    namespace test_ctor {
+//        cnl::fraction<cnl::
+//        static_assert(identical(
+//                3.14285714285714285714f,
+//                cnl::fraction(3.14285714285714285714f)), "cnl::make_fraction");
+//    }
+
     namespace test_make_fraction {
         static_assert(identical(
                 3.14285714285714285714f,
@@ -41,10 +82,11 @@ namespace {
     namespace test_subtract {
         static_assert(identical(
                 cnl::make_fraction(-3LL, 9),
-                cnl::make_fraction(1LL, 3)-cnl::make_fraction(2, 3)), "operator+(cnl::fraction, cnl::fraction)");
+                cnl::make_fraction(1LL, 3)-cnl::make_fraction(2, 3)), "operator-(cnl::fraction, cnl::fraction)");
         static_assert(identical(
                 cnl::make_fraction(-1, 12),
-                cnl::make_fraction(1, short{4})-cnl::make_fraction(1, short{3})), "operator+(cnl::fraction, cnl::fraction)");
+                cnl::make_fraction(1, short{4})-cnl::make_fraction(1, short{3})),
+                "operator-(cnl::fraction, cnl::fraction)");
     }
 
     namespace test_multiply {

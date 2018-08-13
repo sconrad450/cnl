@@ -20,6 +20,15 @@ namespace cnl {
     }
 
     using std::abs;
+
+#if defined(CNL_INT128_ENABLED) && defined(__clang__)
+    int128 abs(int128 const& n) {
+        return (n<0)?-n:n;
+    }
+    uint128 abs(uint128 const& n) {
+        return n;
+    }
+#endif
 }
 
 #endif //CNL_CMATH_H

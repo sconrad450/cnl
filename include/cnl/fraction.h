@@ -10,14 +10,54 @@
 #if !defined(CNL_FRACTION_H)
 #define CNL_FRACTION_H 1
 
-#include "_impl/type_traits.h"
+#include "_impl/type_traits/enable_if.h"
+#include "_impl/type_traits/is_narrowing.h"
 
-#if defined(__cpp_lib_experimental_gcd_lcm)
-#include <experimental/numeric>
-#endif
+#include <cmath>
+#include <numeric>
+#include <string>
 
 /// compositional numeric library
 namespace cnl {
+    // forward declaration
+    template<typename Numerator, typename Denominator = int>
+    struct fraction;
+
+    namespace _impl {
+//        // cnl::_impl::is_fraction
+//        template<typename Fraction>
+//        struct is_fraction : std::false_type {
+//        };
+//
+//        template<typename Numerator, typename Denominator>
+//        struct is_fraction<fraction<Numerator, Denominator>> : std::true_type {
+//        };
+
+        // cnl::_impl::is_fraction_narrowing_conversion
+        template<typename From, typename To, class Enable = void>
+        struct is_fraction_narrowing_conversion;
+
+        template<typename FromNumerator, typename FromDenominator, typename ToNumerator, typename ToNumerator>
+        struct is_narrowing_fraction_conversion<
+                fraction<FromNumerator, FromDenominator>,
+                fraction<ToNumerator, ToDenominator>,
+                enable_if_it<
+                        is_narrowing<FromNumerator, ToNumerator>::value
+                                && is_narrowing<FromDenominator, ToDenominator>::value>::type> : std::true_type {
+        };
+
+        template<typename FromNumerator, typename FromDenominator, typename ToNumerator, typename ToNumerator>
+        struct is_narrowing_fraction_conversion<
+                fraction<FromNumerator, FromDenominator>,
+                fraction<ToNumerator, ToDenominator>,
+                enable_if_it<
+                        is_narrowing<FromNumerator, ToNumerator>::value
+                                && is_narrowing<FromDenominator, ToDenominator>::value>::type> : std::false_type {
+        };
+    }
+
+    constexpr operator typename _impl::enable_if_t<_impl::is_narrowing<Numerator, RhsNumerator>::value
+            || _impl::is_narrowing<Denominator, RhsDenominator>::value, fraction<RhsNumerator, RhsDenominator>>::type() const
 
     /// \brief numeric type represented as the fraction, \ref numerator `/` \ref denominator
     ///
@@ -32,17 +72,27 @@ namespace cnl {
         /// alias to `Denominator`
         using denominator_type = Denominator;
 
-        explicit constexpr fraction(Numerator const& n, Denominator const& d)
+        constexpr fraction(Numerator const& n, Denominator const& d)
                 : numerator{n}, denominator{d} {}
 
         explicit constexpr fraction(Numerator const& n)
                 : numerator{n}, denominator{1} {}
+
+        explicit constexpr fraction(fraction<Numerator, Denominator> const& f)
+                :fraction{f.numerator, f.denominator} { }
 
         /// returns the quotient, \ref numerator `/` \ref denominator
         template<typename Scalar, _impl::enable_if_t<std::is_floating_point<Scalar>::value, int> = 0>
         explicit constexpr operator Scalar() const
         {
             return static_cast<Scalar>(numerator)/static_cast<Scalar>(denominator);
+        }
+
+        template<typename RhsNumerator, typename RhsDenominator, typename Fraction = fraction<Numerator, Denominator>>
+        constexpr operator typename _impl::enable_if_t<_impl::is_narrowing<Numerator, RhsNumerator>::value
+                || _impl::is_fraction_narrowing_conversion<Denominator, RhsDenominator>::value, fraction<RhsNumerator, RhsDenominator>>::type() const
+        {
+            return fraction<RhsNumerator, RhsDenominator>(numerator, denominator);
         }
 
         /// the numerator (top number) of the fraction
@@ -72,10 +122,10 @@ namespace cnl {
     ////////////////////////////////////////////////////////////////////////////////
     // cnl::gcd
 
-#if defined(__cpp_lib_experimental_gcd_lcm)
+#if defined(__cpp_lib_gcd)
     template<typename Numerator, typename Denominator>
     constexpr auto gcd(fraction<Numerator, Denominator> const& f) {
-        return std::experimental::gcd(f.numerator, f.denominator);
+        return std::gcd(f.numerator, f.denominator);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -157,6 +207,68 @@ namespace cnl {
     -> decltype(!(lhs==rhs))
     {
         return !(lhs==rhs);
+    }
+
+    template<typename LhsNumerator, typename LhsDenominator, typename RhsNumerator, typename RhsDenominator>
+    constexpr auto operator<(
+            fraction<LhsNumerator, LhsDenominator> const& lhs,
+            fraction<RhsNumerator, RhsDenominator> const& rhs)
+    -> decltype(_impl::one(lhs/rhs))
+    {
+        return lhs.numerator*rhs.denominator<rhs.numerator*lhs.denominator;
+    }
+
+    template<typename LhsNumerator, typename LhsDenominator, typename RhsNumerator, typename RhsDenominator>
+    constexpr auto operator>(
+            fraction<LhsNumerator, LhsDenominator> const& lhs,
+            fraction<RhsNumerator, RhsDenominator> const& rhs)
+    -> decltype(_impl::one(lhs/rhs))
+    {
+        return lhs.numerator*rhs.denominator>rhs.numerator*lhs.denominator;
+    }
+
+    template<typename LhsNumerator, typename LhsDenominator, typename RhsNumerator, typename RhsDenominator>
+    constexpr auto operator<=(
+            fraction<LhsNumerator, LhsDenominator> const& lhs,
+            fraction<RhsNumerator, RhsDenominator> const& rhs)
+    -> decltype(_impl::one(lhs/rhs))
+    {
+        return lhs.numerator*rhs.denominator<=rhs.numerator*lhs.denominator;
+    }
+
+    template<typename LhsNumerator, typename LhsDenominator, typename RhsNumerator, typename RhsDenominator>
+    constexpr auto operator>=(
+            fraction<LhsNumerator, LhsDenominator> const& lhs,
+            fraction<RhsNumerator, RhsDenominator> const& rhs)
+    -> decltype(_impl::one(lhs/rhs))
+    {
+        return lhs.numerator*rhs.denominator>=rhs.numerator*lhs.denominator;
+    }
+
+    // cnl::fraction free functions
+    using std::to_string;
+
+    template<typename N, typename D>
+    std::string to_string(fraction<N, D> const& f)
+    {
+        return to_string(static_cast<long double>(f));
+//        auto const numerator_string = to_string(f.numerator);
+//        auto const denominator_string = to_string(f.denominator);
+//
+//        auto const total_length = numerator_string.length() + 1 + denominator_string.length();
+//        auto fraction_string {std::string{}};
+//        fraction_string.reserve(total_length);
+//
+//        fraction_string = numerator_string;
+//        fraction_string += '/';
+//        fraction_string += denominator_string;
+//        return fraction_string;
+    }
+
+    template<typename N, typename D>
+    fraction<N, D> abs(fraction<N, D> const& f)
+    {
+        return fraction<N, D>{abs(f.numerator), abs(f.denominator)};
     }
 }
 
