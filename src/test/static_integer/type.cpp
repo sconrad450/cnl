@@ -54,6 +54,15 @@ namespace {
                 "cnl::_impl::rounding_t<cnl::static_integer<>> test failed");
     }
 
+    namespace test_ctor {
+        TEST(static_number, ctor_fraction)
+        {
+            auto expected = cnl::static_integer<200>{1./3};
+            auto actual = (cnl::_impl::static_integer<200>(1) << 100) / cnl::_impl::static_integer<200>(3);
+            ASSERT_EQ(expected, actual);
+        }
+    }
+
     namespace test_conversion_native {
         static_assert(identical(
                 cnl::static_integer<2, cnl::native_rounding_tag>{-1},

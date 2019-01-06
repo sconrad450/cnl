@@ -8,6 +8,8 @@
 #include <cnl/_impl/type_traits/identical.h>
 #include <cnl/_impl/type_traits/assert_same.h>
 
+#include <gtest/gtest.h>
+
 namespace {
     using cnl::_impl::identical;
     using cnl::_impl::assert_same;
@@ -25,6 +27,20 @@ namespace {
                 identical(
                         cnl::static_number<20, -10>{1./3},
                         cnl::static_number<20, -10>{cnl::fraction<int>(1, 3)}), "");
+
+        TEST(static_number, quotient)
+        {
+            auto expected = cnl::static_number<200, -100>{1./3};
+            auto actual = cnl::quotient<cnl::static_number<200, -100>>(1, 3);
+            ASSERT_EQ(expected, actual);
+        }
+
+        TEST(static_number, ctor_fraction)
+        {
+            auto expected = cnl::static_number<200, -100>{1./3};
+            auto actual = cnl::static_number<200, -100>{cnl::fraction<int>(1, 3)};
+            ASSERT_EQ(expected, actual);
+        }
     }
 
     namespace test_make_static_number {
