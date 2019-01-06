@@ -12,6 +12,7 @@
 #include "_impl/rounding.h"
 #include "_impl/type_traits/common_type.h"
 #include "_impl/used_digits.h"
+#include "limits.h"
 
 /// compositional numeric library
 namespace cnl {
@@ -44,7 +45,7 @@ namespace cnl {
         struct rounding<Number&&> : rounding<Number> {};
 
         template<typename Number>
-        struct rounding<Number, enable_if_t<cnl::_impl::is_integral<Number>::value>>
+        struct rounding<Number, enable_if_t<!is_composite<Number>::value && numeric_limits<Number>::is_integer>>
                 : type_identity<native_rounding_tag> {
         };
 
